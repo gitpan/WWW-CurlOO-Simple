@@ -1,0 +1,42 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.55.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 bac85c4e9ae28ace1ba6a9c507132296c1bae3fd MANIFEST
+SHA1 141daab59044ae7ad6cbd9cf67c3a7f5aee2a81c META.yml
+SHA1 2bc0055a74fe731ea1da9256c5a689756a50cce9 Makefile.PL
+SHA1 9ce8290cc72a7e5c91a597c3264300f86500d3d0 README
+SHA1 2a27d30295684f1fec408c3279674b9caa2b078d lib/WWW/CurlOO/Simple.pm
+SHA1 767f71c6dc364e256b6abfca3d3e470fabbf62ea lib/WWW/CurlOO/Simple/Async.pm
+SHA1 f0a88ac6789cbaae602518aa5bce9fb59a72e66e lib/WWW/CurlOO/Simple/Async/AnyEvent.pm
+SHA1 3ab372c45eeac4d1c427c5846cac24af4d6ee361 lib/WWW/CurlOO/Simple/Async/Irssi.pm
+SHA1 771e6beb53a75db68c85b8e4c2eae014c49b2361 lib/WWW/CurlOO/Simple/Async/Perl.pm
+SHA1 ac306e644daf365bd2262d0ee93e0e4d13e03576 lib/WWW/CurlOO/Simple/Form.pm
+SHA1 14d9714c4dec5c913c154c17ee385bd3fb1c4f71 lib/WWW/CurlOO/Simple/UserAgent.pm
+SHA1 c643f0553345c420417c9a29bad99248d81e0daa t/01-use.t
+SHA1 537df107cf8c5f4844527807d8d6febec0923a39 t/02-version.t
+SHA1 66a12c8e45fc78b44433423aacd0c2445a6374e0 t/10-simple.t
+SHA1 e2d932b2419a33653a5b9436fc24598e04300a5b t/20-async-perl.t
+SHA1 b6158d10fa2b9caee4c111d5b9c94270a06b3b14 t/21-async-anyevent.t
+SHA1 28944da1fafa9c64c87d580ad85cb4808d2a893a t/30-useragent-simple.t
+SHA1 cd5f668586f77354ff78e34bce236e04b02dfe9b t/90-pod.t
+SHA1 432840b67be26f47e99593442d3db1bd47ad61c5 t/91-pod-coverage.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk22ChwACgkQdltEc8aiybnvmwCghHgeULQ7yJ/VK+oGE7JDTkLY
+bGgAnRQ3JA6NZUcIiUYicp19Gk+nWqNv
+=ifsJ
+-----END PGP SIGNATURE-----

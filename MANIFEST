@@ -1,0 +1,20 @@
+MANIFEST
+Makefile.PL
+README
+lib/WWW/CurlOO/Simple.pm
+lib/WWW/CurlOO/Simple/Async.pm
+lib/WWW/CurlOO/Simple/Async/AnyEvent.pm
+lib/WWW/CurlOO/Simple/Async/Irssi.pm
+lib/WWW/CurlOO/Simple/Async/Perl.pm
+lib/WWW/CurlOO/Simple/Form.pm
+lib/WWW/CurlOO/Simple/UserAgent.pm
+t/01-use.t
+t/02-version.t
+t/10-simple.t
+t/20-async-perl.t
+t/21-async-anyevent.t
+t/30-useragent-simple.t
+t/90-pod.t
+t/91-pod-coverage.t
+META.yml                                 Module meta-data (added by MakeMaker)
+SIGNATURE                                Public-key signature (added by MakeMaker)
