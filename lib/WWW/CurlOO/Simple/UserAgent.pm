@@ -6,7 +6,7 @@ use WWW::CurlOO::Share qw(CURLSHOPT_SHARE /^CURL_LOCK_DATA_/);
 use Scalar::Util qw(looks_like_number);
 use base qw(WWW::CurlOO::Share);
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 my %common_options = (
 	useragent => __PACKAGE__ . " v$VERSION",
@@ -73,6 +73,11 @@ WWW::CurlOO::Simple::UserAgent - share some data between multiple WWW::CurlOO::S
      my ( $curl, $result ) = @_;
      print "document body: $curl->{body}\n";
  }
+
+=head1 DESCRIPTION
+
+C<WWW::CurlOO::Simple::UserAgent> provides a method to preset some options
+for multiple L<WWW::CurlOO::Simple> objects and allow them to share cookies.
 
 =head1 SPECIAL METHODS
 

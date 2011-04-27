@@ -6,6 +6,8 @@ use Scalar::Util qw(looks_like_number);
 use WWW::CurlOO::Form;
 use base qw(WWW::CurlOO::Form);
 
+our $VERSION = '0.02';
+
 {
 	my %optcache;
 
@@ -68,6 +70,12 @@ WWW::CurlOO::Simple::Form - simplify WWW::CurlOO::Form a little
      contenttype => "text/html" );
 
  WWW::CurlOO::Simple->new->post( $uri, \&finished, $form );
+
+=head1 DESCRIPTION
+
+C<WWW::CurlOO::Simple::Form> is a thin layer over L<WWW::CurlOO::Form>.
+It simplifies common tasks, while providing access to full power of
+L<WWW::CurlOO::Form> when its needed.
 
 =head1 CONSTRUCTOR
 

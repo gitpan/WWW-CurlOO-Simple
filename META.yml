@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               WWW-CurlOO-Simple
-version:            0.01
+version:            0.02
 abstract:           simplifies WWW::CurlOO::Easy interface
 author:
     - Przemysław Iskra <sparky at pld-linux.org>

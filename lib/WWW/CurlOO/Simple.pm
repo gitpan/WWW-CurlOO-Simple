@@ -9,7 +9,7 @@ use URI;
 use URI::Escape qw(uri_escape);
 use base qw(WWW::CurlOO::Easy);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my @common_options = (
 	timeout => 300,
@@ -26,6 +26,10 @@ my @common_options = (
 	],
 );
 
+if ( WWW::CurlOO::version_info()->{features} & WWW::CurlOO::CURL_VERSION_LIBZ ) {
+	push @common_options, encoding => 'gzip,deflate';
+}
+
 my %proxytype = (
 	http    => CURLPROXY_HTTP,
 	socks4  => CURLPROXY_SOCKS4,
@@ -41,10 +45,6 @@ my %proxytype = (
 	eval {
 		$proxytype{http10} = CURLPROXY_HTTP_1_0();
 	};
-}
-
-if ( WWW::CurlOO::version_info()->{features} & WWW::CurlOO::CURL_VERSION_LIBZ ) {
-	push @common_options, encoding => 'gzip,deflate';
 }
 
 {
@@ -231,7 +231,9 @@ sub _perform
 # get some uri
 sub get
 {
-	my ( $easy, $uri, $cb ) = splice @_, 0, 3;
+	my ( $easy, $uri ) = splice @_, 0, 2;
+	my $cb = pop;
+
 	$easy->_perform( $uri, $cb,
 		@_,
 		httpget => 1,
@@ -241,7 +243,9 @@ sub get
 # request head on some uri
 sub head
 {
-	my ( $easy, $uri, $cb ) = splice @_, 0, 3;
+	my ( $easy, $uri ) = splice @_, 0, 2;
+	my $cb = pop;
+
 	$easy->_perform( $uri, $cb,
 		@_,
 		nobody => 1,
@@ -251,7 +255,9 @@ sub head
 # post data to some uri
 sub post
 {
-	my ( $easy, $uri, $cb, $post ) = splice @_, 0, 4;
+	my ( $easy, $uri, $post ) = splice @_, 0, 3;
+	my $cb = pop;
+
 	my @postopts;
 	if ( not ref $post ) {
 		@postopts = ( postfields => $post );
@@ -270,6 +276,50 @@ sub post
 		@_,
 		post => 1,
 		@postopts
+	);
+}
+
+# put some data
+sub put
+{
+	my ( $easy, $uri, $put ) = splice @_, 0, 3;
+	my $cb = pop;
+
+	my @putopts;
+	if ( not ref $put ) {
+		die "Cannot put file $put\n"
+			unless -r $put;
+		open my $fin, '<', $put;
+		@putopts = (
+			readfunction => sub {
+				my ( $easy, $maxlen, $uservar ) = @_;
+				sysread $fin, my ( $r ), $maxlen;
+				return \$r;
+			},
+			infilesize => -s $put
+		);
+	} elsif ( ref $put eq 'SCALAR' ) {
+		my $data = $$put;
+		use bytes;
+		@putopts = (
+			readfunction => sub {
+				my ( $easy, $maxlen, $uservar ) = @_;
+				my $r = substr $data, 0, $maxlen, '';
+				return \$r;
+			},
+			infilesize => length $data
+		);
+	} elsif ( ref $put eq 'CODE' ) {
+		@putopts = (
+			readfunction => $put,
+		);
+	} else {
+		die "don't know how to put $put\n";
+	}
+	$easy->_perform( $uri, $cb,
+		@_,
+		put => 1,
+		@putopts
 	);
 }
 
@@ -296,6 +346,18 @@ WWW::CurlOO::Simple - simplifies WWW::CurlOO::Easy interface
  }
 
  sub finished2 { }
+
+=head1 DESCRIPTION
+
+C<WWW::CurlOO::Simple> is a thin layer over L<WWW::CurlOO::Easy>. It simplifies
+many common tasks, while providing access to full power of L<WWW::CurlOO::Easy>
+when its needed.
+
+L<WWW::CurlOO> excells in asynchronous operations, thanks to a great design of
+L<libcurl(3)>. To take advantage of that power C<WWW::CurlOO::Simple> interface
+uses callbacks even in synchronous mode, this should allow to quickly switch
+to async when the time comes. Of course there is nothing to stop you to use
+L<WWW::CurlOO::Simple::Async> from the beginning.
 
 =head1 CONSTRUCTOR
 
@@ -342,7 +404,7 @@ Get multiple getinfo values.
 
 Get parent L<WWW::CurlOO::Simple::UserAgent> object.
 
-=item get( URI, CALLBACK, [TEMPORARY_OPTIONS] )
+=item get( URI, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a GET request. CALLBACK will be called upon finishing with two arguments:
 WWW::CurlOO::Simple object and the result value. If URI is incomplete, full uri
@@ -358,18 +420,38 @@ request only.
      $curl->get( "/partial/uri", sub {} );
  } );
 
-=item head( URI, CALLBACK, [TEMPORARY_OPTIONS] )
+=item head( URI, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a HEAD request. Otherwise it is exactly the same as get().
 
-=item post( URI, CALLBACK, POST, [TEMPORARY_OPTIONS] )
+=item post( URI, POST, [TEMPORARY_OPTIONS], CALLBACK )
 
 Issue a POST request. POST value can be either a scalar, in which case it will
 be sent literally, a HASHREF - will be uri-encoded, or a L<WWW::CurlOO::Form>
 object (L<WWW::CurlOO::Simple::Form> is OK as well).
 
- $curl->post( $uri, \&finished,
-     { username => "foo", password => "bar" }
+ $curl->post( $uri,
+     { username => "foo", password => "bar" },
+	 \&finished
+ );
+
+=item put( URI, PUTDATA, [TEMPORARY_OPTIONS], CALLBACK )
+
+Issue a PUT request. PUTDATA value can be either a file name, in which case the
+file contents will be uploaded, a SCALARREF -- refered data will be uploaded,
+or a CODEREF -- sub will be called like a C<CURLOPT_READFUNCTION> from
+L<WWW::CurlOO::Easy>, you should specify "infilesize" option in the last
+case.
+
+ $curl1->put( $uri, "filename", \&finished );
+ $curl2->put( $uri, \"some data", \&finished );
+ $curl3->put( $uri, sub {
+         my ( $curl, $maxsize, $uservar ) = @_;
+		 read STDIN, my ( $r ), $maxsize;
+		 return \$r;
+     },
+     infilesize => EXPECTED_SIZE,
+	 \&finished
  );
 
 =back
